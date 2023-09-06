@@ -3,6 +3,8 @@ package db
 import (
 	"database/sql"
 	"fmt"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type MysqlProvider struct {
@@ -10,18 +12,22 @@ type MysqlProvider struct {
 }
 
 func NewMySQLProvider() (SQLProvider, error) {
-	provider := MysqlProvider{}
+	banco := MysqlProvider{}
+	erro := banco.Connect()
 
-	return &provider, provider.Connect()
+	return &banco, erro
 }
 
 func (m *MysqlProvider) Connect() error {
-	conectionString := "root:root@tcp(localhost:3308)?charset=utf8&parseTime=True&loc=Local"
-	_, err := sql.Open("mysql", conectionString)
+	conectionString := "root:root@tcp(localhost:3307)/"
+	db, err := sql.Open("mysql", conectionString)
 	if err != nil {
-		fmt.Errorf("Erro ao conectar com o banco! %v", err)
+		fmt.Sprintf("Erro ao conectar com o banco! %v", err)
 	}
-	return m.db.Ping()
+
+	defer db.Close()
+
+	return db.Ping()
 }
 
 type SQLProvider interface {
